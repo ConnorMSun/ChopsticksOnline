@@ -1,0 +1,229 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #f3f4f6;
+  }
+  
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 40px;
+    background-color: #ffffff;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 36px;
+    color: #111827;
+  }
+  
+  .menu {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 30px; 
+  }
+  
+  .button-container {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  button {
+    padding: 14px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    width: 100%;
+    height: 60px;
+    white-space: nowrap;
+  }
+  
+  #create-game {
+    background-color: #3b82f6;
+  }
+  
+  #create-game:hover {
+    background-color: #2563eb;
+  }
+  
+  #join-game {
+    background-color: #10b981;
+  }
+  
+  #join-game:hover {
+    background-color: #059669;
+  }
+  
+  .description {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+  }
+  
+  .open-lobbies {
+    width: 100%;
+    max-width: 600px;
+    height: 200px; /* Adjust as needed */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-top: 30px; /* Adds vertical space between buttons and open lobbies */
+    overflow-y: auto;
+  }
+  
+  /* Modal styles (updated to match design) */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 24, 39, 0.6); /* subtle dark backdrop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  
+  .modal.hidden {
+    display: none;
+  }
+  
+  .modal-content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .modal-content h2 {
+    margin-bottom: 16px;
+    color: #111827;
+    font-size: 20px;
+  }
+  
+  .modal-content input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    outline: none;
+  }
+  
+  .modal-content input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .modal-actions button {
+    flex: 1;
+    padding: 14px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: white;
+    white-space: nowrap;
+  }
+  
+  #join-submit {
+    background-color: #10b981;
+  }
+  
+  #join-submit:hover {
+    background-color: #059669;
+  }
+  
+  #join-cancel {
+    background-color: #3b82f6;
+  }
+  
+  #join-cancel:hover {
+    background-color: #2563eb;
+  }
+  
+  .lobby-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .lobby-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .lobby-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 4px;
+  }
+  
+  .lobby-id {
+    font-size: 14px;
+    color: #6b7280;
+  }
+  
+  .join-lobby-btn {
+    flex-basis: 25%; /* takes up 25% of banner width */
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .join-lobby-btn:hover {
+    background-color: #059669;
+  }
+  

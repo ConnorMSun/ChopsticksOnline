@@ -1,0 +1,83 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background: #eaeaea;
+  }
+  
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+  }
+  
+  header {
+    text-align: center;
+    padding-bottom: 10px;
+  }
+  
+  .turn-indicator {
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(to right, #c7f9cc, #57cc99);
+    padding: 10px 20px;
+    margin: 0 auto 20px;
+    border-radius: 30px;
+    color: #065f46;
+    text-align: center;
+    width: fit-content;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
+  }
+  
+  
+  .fields {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 20px;
+    padding: 0 20px;
+    overflow-y: auto;
+  }
+  
+  .field {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  #leave-button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  #leave-button:hover {
+    background-color: #dc2626;
+  }
+  

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chopsticks Online - Lobby</title>
+  <link rel="stylesheet" href="lobby.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chopsticks Online!</h1>
+    </header>
+    
+    <div id="session-id"></div>
+
+    <div class="turn-indicator">Current Turn</div>
+
+    <main class="fields">
+      <section class="field" id="opponent-field">
+        <h3>Opponent Field</h3>
+        <!-- Opponent hand UI here -->
+      </section>
+
+      <section class="field" id="user-field">
+        <h3>User Field</h3>
+        <!-- User hand UI here -->
+      </section>
+    </main>
+
+    <footer>
+      <button id="leave-button">Leave Lobby</button>
+    </footer>
+  </div>
+
+  <script src="lobby.js"></script>
+</body>
+</html>

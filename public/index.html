@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chopsticks Online - Home</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chopsticks Online!</h1>
+    </header>
+
+    <main class="menu">
+        <div class="button-container">
+            <button id="create-game">Create Game</button>
+            <p class="description">Start your own match and invite others!</p>
+            <p class="description">This will create a game lobby and assign it a lobby ID you 
+                                    can share with friends to help them join your game.</p>
+          </div>
+          <div class="button-container">
+            <button id="join-game">Join Game</button>
+            <p class="description">Jump into a lobby using its lobby ID!</p>
+            <p class="description">Lobby ID's can be told to you by another player, 
+                                    or can be seen in the 'Open Lobbies' section below.</p>
+          </div>
+
+    </main>
+
+    <div id="join-modal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Join a Game</h2>
+    <input type="text" id="lobby-id-input" placeholder="Enter Lobby ID" />
+    <div class="modal-actions">
+      <button id="join-submit">Join</button>
+      <button id="join-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+    <section class="open-lobbies">
+      <h2>Open Lobbies</h2>
+
+      <div class="lobby-banner">
+        <div class="lobby-info">
+          <h3 class="lobby-name">1V1 ME CHOPSTICKS</h3>
+          <p class="lobby-id">ID: 1234</p>
+        </div>
+        <button class="join-lobby-btn">Join</button>
+      </div>
+      
+      <div class="lobby-banner">
+        <div class="lobby-info">
+          <h3 class="lobby-name">Chill games :D</h3>
+          <p class="lobby-id">ID: 1110</p>
+        </div>
+        <button class="join-lobby-btn">Join</button>
+      </div>
+      
+    </section>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
