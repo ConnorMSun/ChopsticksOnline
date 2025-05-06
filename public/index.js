@@ -1,11 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("create-game").addEventListener("click", () => {
-         fetch('/create-session', {
+        const playerId = generatePlayerId();
+        document.cookie = `playerId=${playerId}; path=/`;
+
+        fetch('/create-session', {
             method: 'POST',
         })
         .then(response => response.json())
         .then(data => {
             const sessionId = data.sessionId;
+            console.log('Session created with ID:', sessionId);
             window.location.href = `lobby.html?id=${sessionId}`;
         })
         .catch(error => {
@@ -19,19 +23,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const lobbyInput = document.getElementById("lobby-id-input");
 
     joinButton.addEventListener("click", () => {
-    modal.classList.remove("hidden");
+        modal.classList.remove("hidden");
     });
 
     cancelBtn.addEventListener("click", () => {
-    modal.classList.add("hidden");
-    lobbyInput.value = "";
+        modal.classList.add("hidden");
+        lobbyInput.value = "";
     });
 
     submitBtn.addEventListener("click", () => {
         const lobbyId = lobbyInput.value.trim();
         if (lobbyId) {
-            const playerId = getPlayerIdFromCookie();
-
+            let playerId = getPlayerIdFromCookie();
+            if (!playerId) {
+                playerId = generatePlayerId();
+                document.cookie = `playerId=${playerId}; path=/`;
+            }
+    
             fetch('/join-session', {
                 method: 'POST',
                 headers: {
@@ -54,6 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+function generatePlayerId() {
+    return Math.floor(Math.random() * 999 + 1).toString();
+}
 
 function getPlayerIdFromCookie() {
     const cookies = document.cookie.split(';');

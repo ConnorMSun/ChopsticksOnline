@@ -1,58 +1,47 @@
-const sessions = []; 
-let sessionIdCounter = 0;
+const sessions = {};
 
 function generateSessionId() {
-    let newSessionId;
-    let exists = true;
-    while(exists) {
-        newSessionId = Math.floor(Math.random() * 89999) + 10000;
-        newSessionId = newSessionId.toString();
-        exists = false;
-        for(let i = 0; i < sessionIdCounter; i++) {
-            if(sessions[i].sessionId === newSessionId) {
-                exists = true;
-                break;
-            }
-        }
-    }
-    sessionIdCounter++;
-    return sessionIdCounter.toString();
+  let id;
+  do {
+    id = Math.floor(Math.random() * 89999 + 10000).toString();
+  } while (sessions[id]);
+  return id;
 }
 
 module.exports = (app) => {
-    app.post('/create-session', (req, res) => {
-        const newSessionId = generateSessionId();
-        sessions[sessionIdCounter] = {
-        players: [],
-        maxPlayers: 2, 
-        sessionId: newSessionId,
+  app.post('/create-session', (req, res) => {
+    const id = generateSessionId();
+    sessions[id] = {
+      sessionId: id,
+      players: [],
+      maxPlayers: 2
     };
-
-    console.log(`Created session with ID: ${newSessionId}`);
-    res.status(201).json({ sessionId: newSessionId });
+    res.status(201).json({ sessionId: id });
   });
 
-    app.post('/join-session', (req, res) => {
-        const { sessionId, playerId } = req.body;
+  app.post('/join-session', (req, res) => {
+    const { sessionId, playerId } = req.body;
+    const session = sessions[sessionId];
 
-        let session = null;
-        for (let i = 0; i < sessions.length; i++) {
-          if (sessions[i].sessionId === sessionId) {
-            session = sessions[i];
-            break;
-          }
-        }
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+    if (session.players.length >= session.maxPlayers) return res.status(400).json({ message: 'Session is full' });
 
-        if (session === null) {
-            return res.status(404).json({ message: 'Session not found' });
-        }
+    session.players.push(playerId);
+    res.status(200).json({ message: `Joined session ${sessionId}` });
+  });
 
-        if (session.players.length >= session.maxPlayers) {
-            return res.status(400).json({ message: 'Session is full' });
-        }
+  app.post('/leave-session', (req, res) => {
+    const { sessionId, playerId } = req.body;
+    const session = sessions[sessionId];
 
-        session.players.push(playerId);
-        console.log(`Player ${playerId} joined session ${sessionId}`);
-        res.status(200).json({ message: `Joined session ${sessionId}` });
-    });
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+
+    session.players = session.players.filter(id => id !== playerId);
+
+    if (session.players.length === 0) {
+      delete sessions[sessionId];
+    }
+
+    res.status(200).json({ message: `Left session ${sessionId}` });
+  });
 };
