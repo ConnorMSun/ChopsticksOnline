@@ -33,33 +33,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     submitBtn.addEventListener("click", () => {
         const lobbyId = lobbyInput.value.trim();
-        if (lobbyId) {
-            let playerId = getPlayerIdFromCookie();
-            if (!playerId) {
-                playerId = generatePlayerId();
-                document.cookie = `playerId=${playerId}; path=/`;
-            }
-    
-            fetch('/join-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ sessionId: lobbyId, playerId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message === `Joined session ${lobbyId}`) {
-                    window.location.href = `lobby.html?id=${lobbyId}`;
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error joining session:', error);
-            });
-        }
+        joinLobby(lobbyId);
     });
+
+    fetch('/open-lobbies')
+    .then(res => res.json())
+    .then(lobbies => {
+        const section = document.querySelector(".open-lobbies");
+        lobbies.forEach(lobby => {
+            const div = document.createElement("div");
+            div.className = "lobby-banner";
+            div.innerHTML = `
+                <div class="lobby-info">
+                <h3 class="lobby-name">Open Lobby</h3>
+                <p class="lobby-id">ID: ${lobby.sessionId}</p>
+                </div>
+                <button class="join-lobby-btn" data-id="${lobby.sessionId}">Join</button>
+            `;
+            div.querySelector("button").addEventListener("click", (e) => {
+                const lobbyId = e.target.getAttribute("data-id");
+                joinLobby(lobbyId);
+            });
+            section.appendChild(div);
+        });
+    })
+    .catch(err => {
+        console.error("Failed to load open lobbies:", err);
+    });
+
 
 });
 
@@ -76,4 +77,33 @@ function getPlayerIdFromCookie() {
         }
     }
     return null;
+}
+
+function joinLobby(lobbyId) {
+    if (lobbyId) {
+        let playerId = getPlayerIdFromCookie();
+        if (!playerId) {
+            playerId = generatePlayerId();
+            document.cookie = `playerId=${playerId}; path=/`;
+        }
+
+        fetch('/join-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sessionId: lobbyId, playerId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === `Joined session ${lobbyId}`) {
+                window.location.href = `lobby.html?id=${lobbyId}`;
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error joining session:', error);
+        });
+    }
 }

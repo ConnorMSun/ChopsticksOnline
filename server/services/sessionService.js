@@ -8,7 +8,7 @@ function generateSessionId() {
   return id;
 }
 
-module.exports = (app) => {
+function sessionRoutes (app) {
   app.post('/create-session', (req, res) => {
     const id = generateSessionId();
     sessions[id] = {
@@ -44,4 +44,9 @@ module.exports = (app) => {
 
     res.status(200).json({ message: `Left session ${sessionId}` });
   });
+};
+
+module.exports = {
+    sessionRoutes,
+    sessions
 };
