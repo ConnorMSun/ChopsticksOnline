@@ -22,9 +22,10 @@ function generateSessionId() {
 module.exports = (app) => {
     app.post('/create-session', (req, res) => {
         const newSessionId = generateSessionId();
-        sessions[newSessionId] = {
+        sessions[sessionIdCounter] = {
         players: [],
         maxPlayers: 2, 
+        sessionId: newSessionId,
     };
 
     console.log(`Created session with ID: ${newSessionId}`);
@@ -42,12 +43,12 @@ module.exports = (app) => {
           }
         }
 
-        if (!sessions[sessionId]) {
-        return res.status(404).json({ message: 'Session not found' });
+        if (session === null) {
+            return res.status(404).json({ message: 'Session not found' });
         }
 
         if (session.players.length >= session.maxPlayers) {
-        return res.status(400).json({ message: 'Session is full' });
+            return res.status(400).json({ message: 'Session is full' });
         }
 
         session.players.push(playerId);
