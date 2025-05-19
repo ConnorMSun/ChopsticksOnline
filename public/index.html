@@ -9,7 +9,21 @@
   <div class="container">
     <header>
       <h1>Chopsticks Online!</h1>
-    </header>
+      <button id="info-toggle" class="link-button">What is this?</button>
+      <div id="info-modal" class="info-modal hidden">
+        <p>
+          Chopsticks is a short and sweet game where two players are given a set of 'hands' 
+          with a value of one, then take turns adding a hand's to another of the three hands. 
+          If a hand ever reaches a value above 4, a value of 5 is subtracted from that hand. 
+          To win, you must get your opponent to have both of their hands at value 0!
+        </p>
+        <p>
+          Friendly competion can boost motivation, stimulate personal growth, and help you destress!
+          Chopsticks Online a great way to participate in low-stakes competition with your friends,
+          family, or even strangers!
+        </p>
+      </div>
+  </header>
 
     <main class="menu">
         <div class="button-container">
@@ -28,22 +42,22 @@
     </main>
 
     <div id="join-modal" class="modal hidden">
-  <div class="modal-content">
-    <h2>Join a Game</h2>
-    <input type="text" id="lobby-id-input" placeholder="Enter Lobby ID" />
-    <div class="modal-actions">
-      <button id="join-submit">Join</button>
-      <button id="join-cancel">Cancel</button>
+      <div class="modal-content">
+        <h2>Join a Game</h2>
+        <input type="text" id="lobby-id-input" placeholder="Enter Lobby ID" />
+          <div class="modal-actions">
+            <button id="join-submit">Join</button>
+            <button id="join-cancel">Cancel</button>
+          </div>
+      </div>
     </div>
-  </div>
-</div>
 
-  <h2>Open Lobbies</h2>
-    <section class="open-lobbies">
+    <div class="lobbies-header">
+      <h2>Open Lobbies</h2>
+      <button id="toggle-lobbies" class="link-button">Hide</button>
+    </div>
+    <section id="open-lobbies" class="open-lobbies"></section>
 
-
-      
-    </section>
   </div>
 
   <script src="index.js"></script>

@@ -91,12 +91,12 @@ html, body {
   .open-lobbies {
     width: 100%;
     max-width: 600px;
-    height: 200px; /* Adjust as needed */
+    height: 200px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
     padding: 20px;
-    margin-top: 30px; /* Adds vertical space between buttons and open lobbies */
+    margin-top: 10px;  /* Reduce this to tighten the spacing */
     overflow-y: auto;
   }
   
@@ -227,3 +227,69 @@ html, body {
     background-color: #059669;
   }
   
+.lobbies-header {
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 10px; /* optional: add horizontal padding */
+}
+
+
+.lobbies-header h2 {
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#toggle-lobbies {
+  background: none;
+  border: none;
+  color: #007BFF;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+/* Make the button look like a hyperlink */
+.link-button {
+  background: none;
+  border: none;
+  color: #007BFF;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.link-button:hover {
+  color: #0056b3;
+}
+.container, .menu {
+  width: 100%;
+}
+
+.info-modal {
+  margin-top: 12px;
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 600px;
+  font-size: 14px;
+  color: #374151;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-modal.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}

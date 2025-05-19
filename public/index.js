@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.getElementById('info-toggle');
+    const info = document.getElementById('info-modal');
+
+    toggleBtn.addEventListener('click', () => {
+        info.classList.toggle('hidden');
+    });
+
     document.getElementById("create-game").addEventListener("click", () => {
         const playerId = generatePlayerId();
         document.cookie = `playerId=${playerId}; path=/`;
@@ -16,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error creating session:', error);
         });
     });
+
     const joinButton = document.getElementById("join-game");
     const modal = document.getElementById("join-modal");
     const cancelBtn = document.getElementById("join-cancel");
@@ -61,6 +69,31 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Failed to load open lobbies:", err);
     });
 
+    const toggleButton = document.getElementById('toggle-lobbies');
+    const lobbiesDiv = document.getElementById('open-lobbies');
+
+    // Function to apply visibility and update button text + localStorage
+    function setLobbiesVisibility(isHidden) {
+        if (isHidden) {
+            lobbiesDiv.classList.add('hidden');
+            toggleButton.textContent = 'Show';
+        } else {
+            lobbiesDiv.classList.remove('hidden');
+            toggleButton.textContent = 'Hide';
+        }
+        localStorage.setItem('lobbiesHidden', isHidden);
+    }
+
+    // On page load, read saved preference and apply it
+    const savedHidden = localStorage.getItem('lobbiesHidden');
+    const isHidden = savedHidden === 'true';  // localStorage stores strings
+    setLobbiesVisibility(isHidden);
+
+    // Toggle button click handler
+    toggleButton.addEventListener('click', () => {
+        const currentlyHidden = lobbiesDiv.classList.contains('hidden');
+        setLobbiesVisibility(!currentlyHidden);
+    });
 
 });
 
