@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             const sessionId = data.sessionId;
             console.log('Session created with ID:', sessionId);
-            window.location.href = `lobby.html?id=${sessionId}`;
+            joinLobby(sessionId);
         })
         .catch(error => {
             console.error('Error creating session:', error);
