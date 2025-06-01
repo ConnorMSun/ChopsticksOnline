@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('id');
