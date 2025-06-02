@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
               console.error("Error notifying server:", err);
           }
       }
-      document.cookie = "playerId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       window.location.href = "index.html";
   });
 
