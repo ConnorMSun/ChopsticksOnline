@@ -3,34 +3,54 @@ const fs = require('fs');
 let sessions = {};
 let vanguard = {};
 console.log("Trimmer service initialized");
-function cullSessions() {
-    console.log("Cull started");
-    let curtime = Date.now();
-    let trimmed = []
-    for(sessionId in sessions) {
-        let session = sessions[sessionId];
-        if(curtime - session.startTime > 7000) {
-            trimmed.push(sessionId);
-            delete sessions[sessionId];
-            console.log(`Session ${session} has been trimmed due to inactivity.`);
-        }
-    }
 
-    if (trimmed.length > 0) {
-        console.log("afk lobbies found")//debug
-        fetch('http://localhost:3000/reflect-cull', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ trimmed })
-        })
-        .then(res => res.json())
-        .then(data => console.log('Trim reflected:', data))
-        .catch(err => console.error('Error:', err));
+const NUM_WORKERS = 1;
+
+function hashWorkerIndex(sessionId) {
+    let hash = 0;
+    for (let i = 0; i < sessionId.length; i++) {
+        hash = (hash << 5) - hash + sessionId.charCodeAt(i);
+        hash |= 0; 
     }
-    console.log("Cull completed");
-    setTimeout(cullSessions, 7000);
+    return Math.abs(hash) % NUM_WORKERS;
 }
-cullSessions();
+
+function startCulling(workerIndex, numworkers) {
+    const CULL_INTERVAL = 7000;
+    function cullSessions() {
+        console.log("Cull started");
+        let curtime = Date.now();
+        let trimmed = []
+        for(sessionId in sessions) {
+            if (hashWorkerIndex(sessionId) !== workerIndex) continue;
+            let session = sessions[sessionId];
+            if(curtime - session.startTime > CULL_INTERVAL) {
+                trimmed.push(sessionId);
+                delete sessions[sessionId];
+                console.log(`Session ${session} has been trimmed due to inactivity.`);
+            }
+        }
+
+        if (trimmed.length > 0) {
+            console.log("afk lobbies found")//debug
+            fetch('http://localhost:3000/reflect-cull', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trimmed })
+            })
+            .then(res => res.json())
+            .then(data => console.log('Trim reflected:', data))
+            .catch(err => console.error('Error:', err));
+        }
+        console.log("Cull completed");
+        setTimeout(cullSessions, CULL_INTERVAL);
+    }
+    cullSessions();
+}
+
+for (let i = 0; i < NUM_WORKERS; i++) {
+    startCulling(i, NUM_WORKERS);
+}
 
 function trimmerRoutes(app, io) {
     app.post('/track-session', (req, res) => {
