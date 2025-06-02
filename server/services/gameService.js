@@ -80,7 +80,7 @@ function gameRoutes(app, io) {
     console.log("Emitting game update for session:", sessionId);
     io.to(sessionId).emit('game-update', newState);
 
-    res.json({ success: true, newState });
+    res.json({ success: true, newState: newState, move: move });
   });
 }
 

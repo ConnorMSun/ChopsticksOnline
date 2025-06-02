@@ -66,25 +66,37 @@ function trimmerRoutes(app, io) {
             return res.status(400).json({ message: 'Invalid user data' });
         }
         console.log(`Vanguard check for user ${userId}`);
-        if(!vanguard[userId]) {
-            vanguard[userId] = { actions: 0, firstAction: Date.now(), recentAction: null };
-        } 
-        vanguard[userId].actions++;
-        vanguard[userId].recentAction = Date.now();
-        if (vanguard[userId].actions >= 12) {
-            if (vanguard[userId].recentAction - vanguard[userId].firstAction < 60000) {
-                console.log("User flagged for excessive actions");
-                fs.appendFile('./server/services/vanguard.txt', `User ${userId} flagged for excessive actions at ${Date.now()}\n`, (err) => {
-                    if (err) {
-                        console.error('Failed to write to vanguard log:', err);
-                    }
-                });
-            }
-            vanguard[userId].firstAction = Date.now();
-            vanguard[userId].actions = 0;
-        }
+        loggerCheck(userId);
+        //CAN INSERT MORE CHECKS HERE FOR MAINTAINABILITY
     });
 };
+
+function loggerCheck(userId) {
+    const MAX_ACTIONS = 6;
+    const BASE_ACTIONS = 0;
+    const LOG_WINDOW = 60000;
+    
+
+    if(!vanguard[userId]) {
+        vanguard[userId] = { actions: BASE_ACTIONS, firstAction: Date.now(), recentAction: null };
+    } 
+    vanguard[userId].actions++;
+    vanguard[userId].recentAction = Date.now();
+
+
+    if (vanguard[userId].actions >= MAX_ACTIONS) {
+        if (vanguard[userId].recentAction - vanguard[userId].firstAction < LOG_WINDOW) {
+            console.log("User flagged for excessive actions");
+            fs.appendFile('./server/services/vanguard.txt', `User ${userId} flagged for excessive actions at ${Date.now()}\n`, (err) => {
+                if (err) {
+                    console.error('Failed to write to vanguard log:', err);
+                }
+            });
+        }
+        vanguard[userId].firstAction = Date.now();
+        vanguard[userId].actions = BASE_ACTIONS;
+    }
+}
 
 module.exports = {
     trimmerRoutes,

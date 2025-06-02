@@ -2,6 +2,7 @@
 let _player1 = [1,1];
 let _player2 = [1,1];
 let position = null;
+let movelist = [];
 const socket = io();
 
 function updateTurnIndicator() {
@@ -76,6 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
               console.error("Error notifying server:", err);
           }
       }
+      fetch('/vanguard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: playerId })
+      });
       window.location.href = "index.html";
   });
 
@@ -128,13 +134,14 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { 'Content-Type': 'application/json' },
         body: tosend
       });
-      
 
       const data = await res.json();
       responseDiv.textContent = res.ok ? "Move submitted!" : `Response Error: ${data.message}`;
 
       if (res.ok) {
         console.log("move processed successfully");
+        movelist.push(move);
+        console.log("Current move list:", movelist);
       } else {
         responseDiv.textContent = `Data Error: ${data.error || 'Unknown error'}`;
       }
@@ -167,6 +174,7 @@ function findWinner() {
     alert("Player 1 wins!");
     disableMoveControls();
   }
+
 }
 
 function disableMoveControls() {
