@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function generatePlayerId() {
-    return Math.floor(Math.random() * 999 + 1).toString();
+    return crypto.randomUUID();
 }
 
 function getPlayerIdFromCookie() {

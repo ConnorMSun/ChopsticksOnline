@@ -13,25 +13,57 @@
     
     <div id="session-id"></div>
 
-    <div class="turn-indicator">Current Turn</div>
+    <div id="turn-indicator" class="turn-indicator">Current Turn</div>
 
     <main class="fields">
       <section class="field" id="opponent-field">
         <h3>Opponent Field</h3>
-        <!-- Opponent hand UI here -->
+        <p id="p2-hands">Opponent: L-0 R-0</p>
       </section>
-
+      
       <section class="field" id="user-field">
         <h3>User Field</h3>
-        <!-- User hand UI here -->
+        <p id="p1-hands">You: L-0 R-0</p>
       </section>
+            
+      <section id="move-submission">
+        <div id="move-controls">
+          <label for="move-action">Action:</label>
+          <select id="move-action">
+            <option value="A">Attack</option>
+            <option value="B">Bump</option>
+          </select>
+
+          <label for="main-hand">Main Hand:</label>
+          <select id="main-hand">
+            <option value="L">Left</option>
+            <option value="R">Right</option>
+          </select>
+
+          <label for="target-hand">Target Hand:</label>
+          <select id="target-hand">
+            <option value="L">Left</option>
+            <option value="R">Right</option>
+          </select>
+
+          <div id="bump-section" style="display: none;">
+            <label for="bump-amount">Amount to bump:</label>
+            <input type="number" id="bump-amount" min="1" max="4" value="1" />
+          </div>
+
+          <button id="submit-move">Submit Move</button>
+          <div id="move-response"></div>
+        </div>
+      </section>
+
+      <button id="reset-button" style="display: none;">Reset Game</button>
     </main>
 
     <footer>
       <button id="leave-button">Leave Lobby</button>
     </footer>
   </div>
-
+  <script src="/socket.io/socket.io.js"></script>
   <script src="lobby.js"></script>
 </body>
 </html>

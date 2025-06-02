@@ -1,108 +1,87 @@
-// gameService.js
+function gameRoutes(app, io) {
+  function parseMove(move) {
+    // Expected format: [Player][Action][MainHand][MainVal][TargetHand][TargetVal]
+    if (!move || move.length !== 6) return null;
 
-class GameSession {
-    constructor(sessionId) {
-        this.sessionId = sessionId;
-        this.players = {};
-        this.turnOrder = [];
-        this.currentTurn = 0;
-        this.winner = null;
+    const player = move[0];
+    const action = move[1];
+    const mainHand = move[2];
+    const mainVal = parseInt(move[3]);
+    const targetHand = move[4];
+    const targetVal = parseInt(move[5]);
+
+    if (!["1", "2"].includes(player)) return null;
+    if (!["A", "B"].includes(action)) return null;
+    if (!["L", "R"].includes(mainHand)) return null;
+    if (!["L", "R"].includes(targetHand)) return null;
+    if (isNaN(mainVal) || mainVal < 0 || mainVal > 5) return null;
+    if (isNaN(targetVal) || targetVal < 0 || targetVal > 5) return null;
+
+    return { player, action, mainHand, mainVal, targetHand, targetVal };
+  }
+
+  function validateMove(gameState, moveObj) {
+    const { player, action, mainHand, mainVal, targetHand, targetVal } = moveObj;
+    const { p1, p2 } = gameState;
+
+    const mainPlayer = player === "1" ? p1 : p2;
+    const opponentPlayer = player === "1" ? p2 : p1;
+    firstHand = mainHand === "L" ? "left" : "right";
+    secondHand = targetHand === "L" ? "left" : "right";
+
+    if (action === "A") {
+        if (targetVal <= 0 || opponentPlayer[secondHand] <= 0) return "Cannot attack opponent's empty hand.";
+        if (mainVal <= 0 || mainPlayer.firstHand <= 0) return "Cannot attack with an empty hand";
+    } else if (action === "B") {
+        if (targetHand === mainHand || firstHand === secondHand) return "Target hand for bump must be different from main hand.";
+        if( mainVal <= 0 || mainPlayer[firstHand] <= 0) return "Cannot bump with an empty hand.";
+        if (targetVal <= 0 || mainPlayer[firstHand] < targetVal) return "Invalid bump amount.";
+        if(Math.abs(mainPlayer[firstHand] - mainPlayer[secondHand]) === targetVal) return "Cannot swap hand values";
+    } else return "Unknown action.";
+    return null;
+  }
+
+  function applyMove(gameState, moveObj) {
+    const { player, action, mainHand, mainVal, targetHand, targetVal } = moveObj;
+    const { p1, p2 } = gameState;
+    const newState = { p1: { ...p1 }, p2: { ...p2 } };
+    
+    const current = `p${player}`;
+    const opponent = player === "1" ? "p2" : "p1";
+    firstHand = mainHand === "L" ? "left" : "right";
+    secondHand = targetHand === "L" ? "left" : "right";
+
+    if (action === "A") {
+        let sum = newState[current][firstHand] + newState[opponent][secondHand];
+        if (sum > 4) sum -= 5;
+        newState[opponent][secondHand] = sum;
+    } else if (action === "B") {
+        newState[current][firstHand] -= targetVal;
+        let bumped = targetVal + newState[current][secondHand];
+        if (bumped > 4) bumped -= 5;
+        newState[current][secondHand] = bumped;
     }
+    return newState;
+  }
 
-    addPlayer(playerId) {
-        if (Object.keys(this.players).length >= 2) return false;
-        this.players[playerId] = { left: 1, right: 1 };
-        this.turnOrder.push(playerId);
-        return true;
-    }
+  app.post('/move', (req, res) => {
+    const { gameState, move, sessionId } = req.body;
 
-    isPlayerTurn(playerId) {
-        return this.turnOrder[this.currentTurn % 2] === playerId;
-    }
+    if (!gameState || !move) return res.status(400).json({ error: "Missing gameState or move." });
 
-    parseMoveString(moveStr) {
-        const regex = /^[12][AB][LR][0-5][LR][0-5]$/;
-        if (!regex.test(moveStr)) {
-            return { error: "Invalid move format" };
-        }
+    const moveObj = parseMove(move);
+    if (!moveObj) return res.status(400).json({ error: "Invalid move format." });
 
-        const player = moveStr[0];
-        const action = moveStr[1];
-        const mainHand = moveStr[2].toLowerCase();
-        const mainVal = parseInt(moveStr[3], 10);
-        const targetHand = moveStr[4].toLowerCase();
-        const targetVal = parseInt(moveStr[5], 10);
+    const error = validateMove(gameState, moveObj);
+    if (error !== null) return res.status(400).json({ error });
 
-        return { player, action, mainHand, mainVal, targetHand, targetVal };
-    }
+    const newState = applyMove(gameState, moveObj);
 
-    makeMove(playerId, moveStr) {
-        if (!this.isPlayerTurn(playerId)) {
-            return { error: "Not your turn" };
-        }
+    console.log("Emitting game update for session:", sessionId);
+    io.to(sessionId).emit('game-update', newState);
 
-        const parsed = this.parseMoveString(moveStr);
-        if (parsed.error) return { error: parsed.error };
-
-        const { action, mainHand, mainVal, targetHand, targetVal } = parsed;
-        const fromPlayer = this.players[playerId];
-        const opponentId = Object.keys(this.players).find(p => p !== playerId);
-        const toPlayer = action === "A" ? this.players[opponentId] : fromPlayer;
-
-        if (fromPlayer[mainHand] !== mainVal) {
-            return { error: "Main hand value does not match actual state" };
-        }
-
-        if (action === "A") {
-            if (toPlayer[targetHand] !== targetVal) {
-                return { error: "Target hand value does not match actual state" };
-            }
-            if (mainVal === 0 || targetVal === 0) {
-                return { error: "Cannot attack with or to a dead hand" };
-            }
-            let sum = mainVal + targetVal;
-            toPlayer[targetHand] = sum >= 5 ? sum - 5 : sum;
-        } else if (action === "B") {
-            if (mainHand === targetHand) {
-                return { error: "Cannot bump to the same hand" };
-            }
-
-            if (mainVal <= 0) {
-                return { error: "Bump amount must be greater than zero" };
-            }
-
-            if (fromPlayer[mainHand] < mainVal) {
-                return { error: "Not enough value in main hand to bump" };
-            }
-
-            // Execute the partial bump
-            fromPlayer[mainHand] -= mainVal;
-            fromPlayer[targetHand] += mainVal;
-
-            if (fromPlayer[mainHand] >= 5) fromPlayer[mainHand] -= 5;
-            if (fromPlayer[targetHand] >= 5) fromPlayer[targetHand] -= 5;
-        }
-
-
-        if (this.players[opponentId].left === 0 && this.players[opponentId].right === 0) {
-            this.winner = playerId;
-        }
-
-        this.currentTurn++;
-
-        return { success: true, state: this.getState() };
-    }
-
-    getState() {
-        return {
-            sessionId: this.sessionId,
-            players: this.players,
-            currentTurn: this.turnOrder[this.currentTurn % 2],
-            winner: this.winner
-        };
-    }
+    res.json({ success: true, newState });
+  });
 }
 
-const gameSessions = {};
-
-module.exports = { GameSession, gameSessions };
+module.exports = { gameRoutes };
