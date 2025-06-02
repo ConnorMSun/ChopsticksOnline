@@ -9,13 +9,24 @@ function generateSessionId() {
 }
 
 function sessionRoutes (app, io) {
-  app.post('/create-session', (req, res) => {
+  app.post('/create-session', async (req, res) => {
     const id = generateSessionId();
     sessions[id] = {
       sessionId: id,
       players: [],
       maxPlayers: 2
     };
+    console.log(`Session created: ${id}`);//debug
+    try {
+      await fetch('http://localhost:3000/track-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id })
+      });
+    } catch (error) {
+      console.error(`Failed to track session ${id}:`, error.message);
+      console.error('Error tracking session:', error);
+    }
     res.status(201).json({ sessionId: id });
   });
 
@@ -30,7 +41,7 @@ function sessionRoutes (app, io) {
     res.status(200).json({ message: `Joined session ${sessionId}`, player: session.players.length });
   });
 
-  app.post('/leave-session', (req, res) => {
+  app.post('/leave-session', async (req, res) => {
     const { sessionId, playerId } = req.body;
     const session = sessions[sessionId];
 
@@ -40,9 +51,36 @@ function sessionRoutes (app, io) {
 
     if (session.players.length === 0) {
       delete sessions[sessionId];
-    }
 
+      try {
+        await fetch('http://localhost:3000/trim-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sessionId })
+        });
+      } catch (err) {
+        console.error(`Failed to untrack session ${sessionId}:`, err.message);
+      }
+    }
+    console
     res.status(200).json({ message: `Left session ${sessionId}` });
+  });
+
+  app.post('/reflect-cull', (req, res) => {
+    console.log("Reflecting cull");
+    const { trimmed } = req.body;
+    if (!trimmed || !Array.isArray(trimmed)) {
+      return res.status(400).json({ message: 'Invalid trimmed session data' });
+    }
+    let reflected = [];
+
+    for(sessionId of trimmed) {
+      if (sessions[sessionId]) {
+        reflected.push(sessionId);
+        delete sessions[sessionId];
+      }
+    }
+    res.status(200).json({ message: 'Sessions reflected', reflected });
   });
 
   if (io) {

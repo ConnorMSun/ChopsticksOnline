@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const bodyParser = require('body-parser');
 const { sessionRoutes, sessions } = require('./services/sessionService');
 const { gameRoutes } = require('./services/gameService');
+const { trimmerRoutes, tracked } = require('./services/trimmerService');
 
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 
 sessionRoutes(app, io);
 gameRoutes(app, io);
+trimmerRoutes(app, io);
 
 app.use(express.static('./public'));
 
