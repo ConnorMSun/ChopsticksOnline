@@ -7,9 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("create-game").addEventListener("click", () => {
-        const playerId = generatePlayerId();
-        document.cookie = `playerId=${playerId}; path=/`;
-
         fetch('/create-session', {
             method: 'POST',
         })
@@ -98,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function generatePlayerId() {
-    return crypto.randomUUID();
+    return `playerId=${crypto.randomUUID()}`;
 }
 
 function getPlayerIdFromCookie() {
@@ -106,8 +103,10 @@ function getPlayerIdFromCookie() {
     for (let cookie of cookies) {
         cookie = cookie.trim();
         if (cookie.startsWith('playerId=')) {
+            console.log("Player ID found in cookie:", cookie);
             return cookie.substring('playerId='.length);
         }
+        console.log("No Player ID found in cookie");
     }
     return null;
 }
@@ -115,7 +114,8 @@ function getPlayerIdFromCookie() {
 function joinLobby(lobbyId) {
     if (lobbyId) {
         let playerId = getPlayerIdFromCookie();
-        if (!playerId) {
+        console.log("Joining lobby with pid:", playerId);
+        if (playerId === null) {
             playerId = generatePlayerId();
             document.cookie = `playerId=${playerId}; path=/`;
         }
@@ -130,6 +130,11 @@ function joinLobby(lobbyId) {
         .then(response => response.json())
         .then(data => {
             if (data.message === `Joined session ${lobbyId}`) {
+                fetch('/vanguard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: playerId })
+                });
                 window.location.href = `lobby.html?id=${lobbyId}`;
             } else {
                 alert('Error: ' + data.message);

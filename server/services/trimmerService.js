@@ -1,4 +1,7 @@
+const fs = require('fs');
+
 let sessions = {};
+let vanguard = {};
 console.log("Trimmer service initialized");
 function cullSessions() {
     console.log("Cull started");
@@ -6,7 +9,7 @@ function cullSessions() {
     let trimmed = []
     for(sessionId in sessions) {
         let session = sessions[sessionId];
-        if(curtime - session.startTime > 5000) {
+        if(curtime - session.startTime > 7000) {
             trimmed.push(sessionId);
             delete sessions[sessionId];
             console.log(`Session ${session} has been trimmed due to inactivity.`);
@@ -25,7 +28,7 @@ function cullSessions() {
         .catch(err => console.error('Error:', err));
     }
     console.log("Cull completed");
-    setTimeout(cullSessions, 5000);
+    setTimeout(cullSessions, 7000);
 }
 cullSessions();
 
@@ -54,6 +57,32 @@ function trimmerRoutes(app, io) {
         delete sessions[sessionId];
         console.log(`Session ${sessionId} has been trimmed`);
         res.status(200).json({ message: `Session ${sessionId} has been trimmed` });
+    });
+
+    app.post('/vanguard', (req, res) => {
+        const { userId } = req.body;
+        if (!userId) {
+            console.error("Invalid user data received for vanguard");
+            return res.status(400).json({ message: 'Invalid user data' });
+        }
+        console.log(`Vanguard check for user ${userId}`);
+        if(!vanguard[userId]) {
+            vanguard[userId] = { actions: 0, firstAction: Date.now(), recentAction: null };
+        } 
+        vanguard[userId].actions++;
+        vanguard[userId].recentAction = Date.now();
+        if (vanguard[userId].actions >= 12) {
+            if (vanguard[userId].recentAction - vanguard[userId].firstAction < 60000) {
+                console.log("User flagged for excessive actions");
+                fs.appendFile('./server/services/vanguard.txt', `User ${userId} flagged for excessive actions at ${Date.now()}\n`, (err) => {
+                    if (err) {
+                        console.error('Failed to write to vanguard log:', err);
+                    }
+                });
+            }
+            vanguard[userId].firstAction = Date.now();
+            vanguard[userId].actions = 0;
+        }
     });
 };
 

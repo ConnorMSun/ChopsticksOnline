@@ -181,8 +181,10 @@ function getPlayerIdFromCookie() {
     for (let cookie of cookies) {
         cookie = cookie.trim();
         if (cookie.startsWith('playerId=')) {
+            console.log("Player ID found in cookie:", cookie);
             return cookie.substring('playerId='.length);
         }
+        console.log("No Player ID found in cookie");
     }
     return null;
 }
