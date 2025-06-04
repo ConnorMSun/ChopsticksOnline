@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("create-game").addEventListener("click", () => {
-        fetch('/create-session', {
+        fetch('http://localhost:3001/create-session', {
             method: 'POST',
         })
         .then(response => response.json())
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         joinLobby(lobbyId);
     });
 
-    fetch('/open-lobbies')
+    fetch('http://localhost:3001/open-lobbies')
     .then(res => res.json())
     .then(lobbies => {
         const section = document.querySelector(".open-lobbies");
@@ -120,7 +120,7 @@ function joinLobby(lobbyId) {
             document.cookie = `playerId=${playerId}; path=/`;
         }
 
-        fetch('/join-session', {
+        fetch('http://localhost:3001/join-session', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -130,7 +130,7 @@ function joinLobby(lobbyId) {
         .then(response => response.json())
         .then(data => {
             if (data.message === `Joined session ${lobbyId}`) {
-                fetch('/vanguard', {
+                fetch('http://localhost:3003/vanguard', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: playerId })

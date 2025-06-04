@@ -1,3 +1,5 @@
+const { io: ClientIO } = require("socket.io-client");
+
 const sessions = {};
 
 function generateSessionId() {
@@ -9,6 +11,19 @@ function generateSessionId() {
 }
 
 function sessionRoutes (app, io) {
+  const gameServiceSocket = ClientIO("http://localhost:3002");
+
+  gameServiceSocket.on("connect", () => {
+    console.log("Connected to Game Service (3002)");
+  });
+
+  gameServiceSocket.on("game-update", (data) => {
+    const { newState, sessionId, move } = data;
+    console.log(`Received game-update from Game Service for session ${sessionId}`);
+
+    io.to(sessionId).emit("game-update", {newState, move}); 
+  });
+
   app.post('/create-session', async (req, res) => {
     const id = generateSessionId();
     sessions[id] = {
@@ -18,7 +33,7 @@ function sessionRoutes (app, io) {
     };
     console.log(`Session created: ${id}`);//debug
     try {
-      await fetch('http://localhost:3000/track-session', {
+      await fetch('http://localhost:3003/track-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: id })
@@ -53,7 +68,7 @@ function sessionRoutes (app, io) {
       delete sessions[sessionId];
 
       try {
-        await fetch('http://localhost:3000/trim-session', {
+        await fetch('http://localhost:3003/trim-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId: sessionId })
@@ -62,7 +77,7 @@ function sessionRoutes (app, io) {
         console.error(`Failed to untrack session ${sessionId}:`, err.message);
       }
     }
-    console
+    console.log(`Player ${playerId} left session ${sessionId}`);
     res.status(200).json({ message: `Left session ${sessionId}` });
   });
 
@@ -82,6 +97,15 @@ function sessionRoutes (app, io) {
     }
     res.status(200).json({ message: 'Sessions reflected', reflected });
   });
+
+  app.get('/open-lobbies', (req, res) => {
+    const openLobbies = Object.entries(sessions)
+    .filter(([_, session]) => session.players.length < session.maxPlayers)
+    .map(([sessionId]) => ({ sessionId }));
+
+    res.status(200).json(openLobbies);
+  });
+
 
   if (io) {
     io.on('connection', (socket) => {
@@ -111,6 +135,5 @@ function sessionRoutes (app, io) {
 };
 
 module.exports = {
-    sessionRoutes,
-    sessions
+    sessionRoutes
 };

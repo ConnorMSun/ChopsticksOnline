@@ -78,7 +78,7 @@ function gameRoutes(app, io) {
     const newState = applyMove(gameState, moveObj);
 
     console.log("Emitting game update for session:", sessionId);
-    io.to(sessionId).emit('game-update', newState);
+    io.emit('game-update', { newState, sessionId, move});
 
     res.json({ success: true, newState: newState, move: move });
   });

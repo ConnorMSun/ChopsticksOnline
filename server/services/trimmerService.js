@@ -4,7 +4,7 @@ let sessions = {};
 let vanguard = {};
 console.log("Trimmer service initialized");
 
-const NUM_WORKERS = 1;
+const NUM_WORKERS = 4;
 
 function hashWorkerIndex(sessionId) {
     let hash = 0;
@@ -33,7 +33,7 @@ function startCulling(workerIndex, numworkers) {
 
         if (trimmed.length > 0) {
             console.log("afk lobbies found")//debug
-            fetch('http://localhost:3000/reflect-cull', {
+            fetch('http://localhost:3001/reflect-cull', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ trimmed })
@@ -119,6 +119,5 @@ function loggerCheck(userId) {
 }
 
 module.exports = {
-    trimmerRoutes,
-    sessions
+    trimmerRoutes
 };

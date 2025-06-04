@@ -1,9 +1,21 @@
+async function validationMicroservice(moves) {
+  try {
+    await fetch('/save-moves', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ moves  })
+    });
+  } catch (err) {
+    console.error("Failed to send moves to server:", err);
+  }
+}
 
 let _player1 = [1,1];
 let _player2 = [1,1];
 let position = null;
 let movelist = [];
-const socket = io();
+const socket = io('http://localhost:3001');
+
 
 function updateTurnIndicator() {
   const turnIndicator = document.getElementById('turn-indicator');
@@ -36,7 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    socket.on('game-update', (newState) => {
+    socket.on('game-update', (data) => {
+      const { newState, move } = data;
+      movelist.push(move);
       console.log('Received updated game state:', newState);
       _player1 = [newState.p1.left, newState.p1.right];
       _player2 = [newState.p2.left, newState.p2.right];
@@ -64,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (sessionId && playerId) {
           try {
-              const res = await fetch('/leave-session', {
+              const res = await fetch('http://localhost:3001/leave-session', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ sessionId, playerId }),
@@ -77,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
               console.error("Error notifying server:", err);
           }
       }
-      fetch('/vanguard', {
+      fetch('http://localhost:3003/vanguard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: playerId })
@@ -129,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tosend = JSON.stringify({ gameState, move, sessionId })
     console.log("Sending data:", tosend);
     try {
-      const res = await fetch('/move', {
+      const res = await fetch('http://localhost:3002/move', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: tosend
@@ -140,8 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (res.ok) {
         console.log("move processed successfully");
-        movelist.push(move);
-        console.log("Current move list:", movelist);
       } else {
         responseDiv.textContent = `Data Error: ${data.error || 'Unknown error'}`;
       }
@@ -166,15 +178,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-function findWinner() {
+async function findWinner() {
   if (_player1[0] === 0 && _player1[1] === 0) {
     alert("Player 2 wins!");
     disableMoveControls();
+    validationMicroservice(movelist);
   } else if (_player2[0] === 0 && _player2[1] === 0) {
     alert("Player 1 wins!");
     disableMoveControls();
-  }
-
+    validationMicroservice(movelist);
+  } else return;
 }
 
 function disableMoveControls() {
